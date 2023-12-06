@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
@@ -211,5 +212,12 @@ public class FilePermissionCheckWebModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
+        
+        var path = context.GetConfiguration()["KeyStore:Path"];
+        if (!FilePermissionCheckHelper.Check(path))
+        {
+            throw new ApplicationException(
+                "Exception startup, the permissions of keystore file invalid, the keystore must have permissions set to 400 (read-only).");
+        }
     }
 }
